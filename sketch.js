@@ -25,15 +25,18 @@ let minDistanceBetween = Math.min(window.innerWidth, window.innerHeight) / 12; /
 let timeThreshold = 1000;  // 1 sec (duration for hand to stay to control ui)
 let handTimer = null, heldElement = null;
 let textureLayer;
-let frameRound, frameRect, frame = null;
+let frameRound, frameRect, frame = null, logoImg;
 let currFrame = null;
+let graceFont;
 
 function preload() { 
   bgm = loadSound('assets/lemonade.mp3');
   paper = loadImage('assets/paper.jpg');
   frameRound = loadImage('assets/frame_round.png');
   frameRect = loadImage('assets/frame_rect.png');
+  logoImg = loadImage('assets/icons/logo.svg');
   handPose = ml5.handPose({ flipped: true });
+  graceFont = loadFont('assets/CoveredByYourGrace-Regular.ttf');
 }
 
 function setup() {

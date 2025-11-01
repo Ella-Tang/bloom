@@ -128,7 +128,6 @@ function selectFrame(type) {
   }, 300);
 }
 
-/* Fit the chosen frame AR into the p5 canvas in *logical* pixels */
 function computeFrameRectLogical(ar) {
   let fw = width;
   let fh = fw / ar;
@@ -138,7 +137,6 @@ function computeFrameRectLogical(ar) {
   return { fx, fy, fw, fh };
 }
 
-/* Capture + composite. Optionally reveal in overlay (no preview). */
 function takeSnapshotWithRect({ fx, fy, fw, fh }, { revealInOverlay = true, autoDownload = true } = {}) {
   // centered square content inside frame rect
   const side = Math.min(fw, fh);
@@ -162,15 +160,27 @@ function takeSnapshotWithRect({ fx, fy, fw, fh }, { revealInOverlay = true, auto
   const frameImg = (currFrame === 'round') ? frameRound : frameRect;
   out.image(frameImg, 0, 0, out.width, out.height);
 
+  // --- bottom-left logo ---
+  if (logoImg) {
+    const pad = Math.round(out.width * 0.04);
+    const targetH = Math.round(out.height * 0.08);
+    const aspect = (logoImg.width && logoImg.height) ? (logoImg.width / logoImg.height) : 1;
+    const targetW = Math.round(targetH * aspect);
+    out.push();
+    out.image(logoImg, pad, out.height - targetH - pad, targetW, targetH);
+    out.pop();
+  }
+
   // timestamp
   out.textAlign(RIGHT, BOTTOM);
-  out.textSize(out.width * 0.03);
+  out.textFont(graceFont);
+  out.textSize(out.width * 0.04);
   out.fill(40, 40, 40, 180);
   out.noStroke();
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  out.text(`${dateStr}  ${timeStr}`, out.width - out.width * 0.07, out.height - out.height * 0.05);
+  out.text(`${dateStr}  ${timeStr}`, out.width - out.width * 0.07, out.height - out.height * 0.03);
 
   if (revealInOverlay) {
     // show snapshot
