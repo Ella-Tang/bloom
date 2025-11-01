@@ -1,7 +1,9 @@
 // hand indicator
 const smoothFactor = 0.1, moveThreshold = 600;
 let prevX = window.innerWidth / 2, prevY = window.innerHeight / 2;
-// ui buttons
+// ui
+const startScreen = document.getElementById('start-screen');
+const startBtn = document.getElementById('start-btn');
 const uiBar = document.querySelector(".ui-bar");
 const message = document.getElementById("message")
 const selectedMark = document.getElementById("selected-mark");
@@ -9,9 +11,10 @@ const handInd = document.getElementById("hand-ind");
 const toggleBtn = document.getElementById("toggle-btn");
 const ICON_STATE = { play: 'assets/icons/play.svg', pause: 'assets/icons/pause.svg' };
 const ICON_MODE = { hand:  'assets/icons/hand.svg', mouse: 'assets/icons/mouse.svg' };
+const ICON_FULLSCREEN = { enter: 'assets/icons/fullscreen.svg', exit:  'assets/icons/exit_fullscreen.svg' };
 const clearBtn = document.getElementById("clear-btn");
 const modeBtn = document.getElementById("mode-btn");
-const actionButtons = document.getElementById("action-buttons");
+const actionButtons = document.querySelector(".action-buttons");
 const roundBtn = document.getElementById("round-frame-btn");
 const rectBtn = document.getElementById("rect-frame-btn");
 modeBtn.textContent = drawMode === 1 ? "Switch to Mouse" : "Switch to Hand";
@@ -31,25 +34,52 @@ const FRAME_RECT_SRC  = 'assets/frame_rect.png';
 const frameOverlay = document.getElementById('frame-overlay');
 const frameOverlayImg = document.getElementById('frame-overlay-img');
 
+function start() {
+  startScreen.classList.add('hide');
+  setTimeout(() => startScreen.remove(), 320);
+  if (typeof toggleDrawing === 'function' && !window.isDrawing) {
+    toggleDrawing();
+  }
+}
+
 // fullscreen
+setFullscreenIcon(false);
+
+document.addEventListener('fullscreenchange', () => {
+  setFullscreenIcon(isFullscreen());
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  setFullscreenIcon(isFullscreen());
+});
+
 function enterFullscreen(el = document.documentElement) {
   const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
   if (rfs) rfs.call(el);
 }
-// optional: press "f" to toggle fullscreen
-document.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'f') toggleFullscreen();
-});
+
 function exitFullscreen() {
   const xfs = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
   if (xfs) xfs.call(document);
 }
+
 function isFullscreen() {
   return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
 }
+
 function toggleFullscreen() {
   isFullscreen() ? exitFullscreen() : enterFullscreen(document.documentElement);
 }
+
+function setFullscreenIcon(isFull) {
+  const fsBtn = document.getElementById('fullscreen-btn');
+  if (!fsBtn) return;
+  fsBtn.innerHTML = ''; // clear existing image
+  const img = document.createElement('img');
+  img.src = isFull ? ICON_FULLSCREEN.exit : ICON_FULLSCREEN.enter;
+  img.alt = isFull ? 'Exit Fullscreen' : 'Enter Fullscreen';
+  fsBtn.appendChild(img);
+}
+
 
 // prevent propagate
 ['pointerdown','mousedown','touchstart','click'].forEach(evt => {
@@ -80,7 +110,6 @@ document.addEventListener("click", (e) => {
 function toggleFrameOptions() {
   frameOptions.style.display = frameOptions.style.display === "flex" ? "none" : "flex";
 }
-
 function selectFrame(type) {
   currFrame = type;
   frame = (type === 'round') ? frameRound : frameRect;
@@ -205,7 +234,6 @@ function applyFilter(srcImg, { desat = 0.06, fade = 16, sharpen = 0.6, blurForHP
     }
     base.updatePixels();
   }
-
   return base;
 }
 

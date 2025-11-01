@@ -1,10 +1,3 @@
-// const COLOR_PALETTE = [ {r: 117, g: 185, b: 190, a: 1}, {r: 105, g: 109, b: 125, a: 1},
-//   {r: 215, g: 38, b: 56, a: 1}, {r: 244, g: 157, b: 55, a: 1},
-//   {r: 244, g: 195, b: 135, a: 1}, {r: 144, g: 64, b: 40, a: 1},
-//   {r: 21, g: 76, b: 100, a: 1}, {r: 141, g: 164, b: 151, a: 1},
-//   {r: 89, g: 135, b: 77, a: 1}, {r: 46, g: 119, b: 103, a: 1},
-//   {r: 156, g: 175, b: 183, a: 1}, {r: 48, g: 82, b: 82, a: 1} ];
-
 const COLOR_PALETTE = [
   { r: 227, g: 196, b: 190, a: 1 },
   { r: 229, g: 216, b: 181, a: 1 },
@@ -12,23 +5,19 @@ const COLOR_PALETTE = [
   { r: 151, g: 103, b: 0,   a: 1 },
   { r: 159, g: 98,  b: 77,  a: 1 },
   { r: 133, g: 53,  b: 53,  a: 1 },
-
   { r: 156, g: 175, b: 183, a: 1 },
   { r: 91,  g: 126, b: 145, a: 1 },
   { r: 21,  g: 76,  b: 100, a: 1 },
   { r: 119, g: 153, b: 150, a: 1 },
   { r: 130, g: 195, b: 168, a: 1 },
   { r: 118, g: 151, b: 96,  a: 1 },
-
   { r: 240, g: 232, b: 170, a: 1 },
   { r: 225, g: 162, b: 94,  a: 1 },
   { r: 208, g: 128, b: 82,  a: 1 },
   { r: 210, g: 127, b: 127, a: 1 },
-  // { r: 200, g: 178, b: 217, a: 1 },
-  // { r: 159, g: 124, b: 153, a: 1 }
 ];
 
-let drawMode = 1, isDrawing = true, isRandomBg = false, isWebcamAvailable = false;
+let drawMode = 1, isDrawing = false, isRandomBg = false, isWebcamAvailable = false;
 let bgm, canvasBg, currBgColor, paper;
 let video, handPose, hands = []; // for hand detection
 let flowers = [], selectedFlower = null;

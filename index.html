@@ -5,475 +5,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bloom</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
   <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.3.1/addons/p5.sound.min.js"></script>
   <script src="gene.js"></script>
   <script src="flower.js"></script>
   <script src="sketch.js"></script>
-  <style>
-    :root{
-      --ui-gap: 40px;
-      --ui-radius: 40px;
-      --btn-font: 18px;
-      --btn-pad-y: 10px;
-      --btn-pad-x: 20px;
-      --toggle-size: 80px;
-    }
-    /* Body */
-    html, body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      font-family: 'Arial', sans-serif; 
-    }
-    /* Canvas */
-    canvas {
-      display: block;
-      margin: 0;
-      padding: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-    }
-    /* UI */
-    .ui-bar {
-      position: fixed;
-      bottom: 0;
-      width: 98vw;
-      height: auto;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      z-index: 3;
-    }
-    #action-buttons {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      width: fit-content;
-      height: 60px;
-      padding: 0px 12px;
-      border-radius: 40px;
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 6px 6px rgba(0, 0, 0, 0.05),
-        inset 0 1px 1px rgba(255, 255, 255, 0.08);
-    }
-    /* Button */
-    button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: auto;
-      white-space: nowrap; 
-      overflow: hidden;
-      text-overflow: ellipsis; 
-      height: 45px;
-      font-size: 18px;
-      text-align: center;
-      padding: 10px 20px;
-      box-sizing: border-box;
-      border: 0.2px solid rgba(255, 255, 255, 0.4);
-      border-radius: 50px;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      box-shadow: 0 2px 2px rgba(255, 255, 255, 0.2),
-                  inset 0 1px 1px rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      justify-items: center;
-    }
-    button:hover {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      width: auto;
-      height: 50px;
-      font-size: 20px;
-    }
-    button.hand-hover {
-      background: rgba(255, 255, 255, 0.2);
-      width: auto;
-      height: 50px;
-      font-size: 20px;
-    }
-    button .icon {
-      width: 24px;
-      height: width;
-      display: block;
-      pointer-events: none;
-    }
-    button:hover .icon {
-      width: 34px;
-      height: width;
-    }
-    button.icon.hand-hover {
-      width: 24px;
-      height: width;
-      display: block;
-    }
-    #toggle-btn {
-      width: 100px;
-      height: 100px;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 20;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 6px 6px rgba(0, 0, 0, 0.05),
-        inset 0 1px 1px rgba(255, 255, 255, 0.08);
-    }
-    #toggle-btn .icon {
-      width: 50px;
-      height: 50px;
-    }
-    #toggle-btn:hover {
-      scale:1.1;
-      background: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    #toggle-btn .icon :hover {
-      width: 60px;
-      height: 60px;
-    }
-    /* overlay */
-    .overlay {
-      position: fixed;
-      top: clamp(40px, 7vh, 60px);
-      left: 0;
-      width: 100vw;
-      height: calc(100vh - clamp(40px, 7vh, 60px) * 2);
-      background-color: rgba(0, 0, 0, 0.1);
-      pointer-events: none;
-      z-index: 1;
-      overflow: hidden;
-    }
-    .overlay::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: clamp(150px, min(95vw, 95vh), 700px);
-      height: clamp(150px, min(95vw, 95vh), 700px);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 calc(100vh - clamp(40px, 7vh, 60px) * 2) rgba(219, 173, 106, 0.95);
-      z-index: 2;
-    }
-    /* message */
-    #message {
-      position: fixed;
-      top: 0;
-      margin-top: 12px;
-      font-size: 18px;
-      color: white;
-      text-align: center;
-      padding: clamp(10px, 2vh, 20px);
-      white-space: pre-line;
-      display: none;
-      border-radius: 15px;
-      z-index: 10;
-      background: rgba(20, 20, 20, 0.5);
-      backdrop-filter: blur(4px) saturate(160%);
-      -webkit-backdrop-filter: blur(4px) saturate(160%);
-      border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 4px 4px rgba(0, 0, 0, 0.05),
-        inset 0 1px 1px rgba(255, 255, 255, 0.08);
-    }
-    /* selection */
-    #selected-mark {
-      position: absolute;
-      width: clamp(20px, 2vw, 60px);
-      height: clamp(20px, 2vw, 60px);
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(1px) saturate(100%);
-      -webkit-backdrop-filter: blur(1px) saturate(100%);
-      box-shadow:
-        0 2px 10px rgba(255, 255, 255, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.25);
-      pointer-events: none;
-      display: none;
-      z-index: 8;
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-    #selected-mark::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: radial-gradient(
-        circle at top left,
-        rgba(255, 255, 255, 0.4),
-        rgba(255, 255, 255, 0.05) 70%
-      );
-      pointer-events: none;
-      opacity: 0.8;
-    }
-    #selected-mark.active {
-      transform: scale(1.08);
-      box-shadow:
-        0 4px 15px rgba(255, 255, 255, 0.25),
-        inset 0 1px 2px rgba(255, 255, 255, 0.35);
-    }
-    @keyframes pulseGlass {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.85; }
-    }
-    #selected-mark.active {
-      animation: pulseGlass 2s ease-in-out infinite;
-    }
-    /* hand indicator */
-     #hand-ind {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      opacity: 0.75;
-      display: none;
-      pointer-events: none;
-      z-index: 999;
-    }
-    /* frame options */
-    #frame-options {
-      position: fixed;
-      inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      gap:80px;
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(4px);
-      z-index: 10000;
-      animation: fadeIn 0.3s ease;
-    }
-    #rect-frame-btn {
-      width: auto;
-      height: auto;
-      padding-bottom: 25px;
-      flex-direction: column;
-    }
-    #round-frame-btn {
-      width: auto;
-      height: auto;
-      padding-bottom: 25px;
-      flex-direction: column;
-    }
-    #frame-options button img {
-      width: 300px;
-      height: 300px;
-      display: block;
-      margin-bottom: 12px;
-      opacity: 0.9;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    #frame-options button:hover {
-      transform: scale(1.05);
-    }
-    #frame-options button:hover img {
-      transform: scale(1.03);
-    }
-    #frame-options button span {
-      display: block;
-      font-size: 18px;
-      color: white;
-      margin-top: 6px;
-      text-transform: uppercase;
-    }
-    #frame-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.1);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 10000;
-    }
-    #frame-overlay-img {
-      max-width: 90vw;
-      max-height: 90vh;
-      width: auto;
-      height: auto;
-      opacity: 0.88;
-    }
-    #frame-overlay.show { 
-      display: flex; 
-    }
-    #frame-overlay-img.is-final {
-      opacity: 0;
-      transform: scale(.96);
-      animation: revealShot .45s ease-out forwards;
-    }
-
-    @keyframes revealShot {
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    /* ------ small screen ----- */
-    @media (max-width: 680px) {
-      #toggle-btn {
-        width: 50px;
-        height: 50px;
-      }
-      #toggle-btn .icon {
-        width: 25px;
-        height: 25px;
-      }
-      #action-buttons {
-        gap:6px;
-        padding: 0px 6px;
-        height: 50px;
-      }
-      button {
-        width: auto;
-        height: 40px;
-        font-size: 14px;
-        padding: 6px 12px;
-        display: flex;
-      }
-      button:hover {
-        font-size: 15px;
-        height: 45px;
-      }
-      .ui-bar {
-        width: fit-content;
-        justify-content: space-around;
-        margin-bottom: 12px;
-        gap: 5px;
-      }
-      #frame-options button span {
-        font-size: 14px;
-      }
-      #frame-options {
-        flex-direction: column;
-        gap: 40px;
-        padding: 40px 0;
-      }
-      #frame-options button img {
-        width: 220px;
-        height: 220px;
-      }
-      #frame-options button span {
-        font-size: 14px;
-      }
-      #message {
-        margin-top: 12px;
-        font-size: 14px;
-        padding: 12px;
-        border-radius: 5px;
-      }
-    }
-    @media (max-width: 400px) {
-      #toggle-btn {
-        width: 40px;
-        height: 40px;
-      }
-      #toggle-btn .icon {
-        width: 25px;
-        height: 25px;
-      }
-      .ui-bar {
-        gap: 4px;
-      }
-      #action-buttons {
-        gap:4px;
-        width: fit-content;
-        padding: 0px 6px;
-        height: 40px;
-      }
-      button {
-        width: auto;
-        height: 30px;
-        font-size: 14px;
-        padding: 6px 5px;
-      }
-      button:hover {
-        font-size: 15px;
-        height: 45px;
-      }
-      #frame-options button span {
-        font-size: 12px;
-      }
-      #frame-options {
-        gap: 40px;
-        padding: 40px 0;
-      }
-      #frame-options button img {
-        width: 220px;
-        height: 220px;
-      }
-      #frame-options button span {
-        font-size: 12px;
-      }
-      #message {
-        margin-top: 12px;
-        font-size: 12px;
-        padding: 12px;
-        border-radius: 5px;
-      }
-    }
-  </style>
 </head>
 
-<body> 
+<body>
+  <button id="fullscreen-btn" onclick="toggleFullscreen()"><img src="assets/icons/fullscreen.svg" alt="Fullscreen"></button>
+  <!-- START SCREEN -->
+  <div id="start-screen" aria-modal="true">
+      <div class="start-left">
+        <h1 class="start-logo">BL<span class="logo-bloom" aria-hidden="true">✿</span>OM</h1>
+        <div class="start-description">
+          <p class="start-lead">Fill your canvas with flowers.</p>
+          <p class="start-sub">Each bloom is genetic! Try selecting one before create a new flower.</p>
+          <p class="start-sub">Take a snapshot and share with others.</p>
+        </div>
+        <div class="start-btn-container"><button id="start-btn" onclick="start()">START</button></div>
+        <div class="start-note">
+          <div class="start-gif"><img src="assets/animation.gif" alt="Hand mode animation"></div>
+          <p>Control with your hand or mouse.</p>
+        </div>
+      </div>
+      <div class="start-right">
+        <img id="start-cover" src="assets/cover.svg" alt="Bloom cover">
+      </div>
+  </div>
   <!-- UI -->
   <div class="ui-bar">
     <button id="toggle-btn" onclick="toggleDrawing()"></button>
-    <div id="action-buttons">
-      <button id="clear-btn" onclick="clearCanvas()">
-        <img src="assets/icons/eraser.svg" alt="Eraser" class="btn-icon" />
-        Erase
-      </button>
-      <button id="mode-btn" onclick="switchDrawingMode()">
-        <img src="assets/icons/mouse.svg" class="btn-icon" />
-      </button>
-      <button id="snapshot-btn" onclick="toggleFrameOptions()">
-        <img src="assets/icons/camera.svg" alt="Camera" class="btn-icon" />
-        Snapshot
-      </button>
+    <div class="action-buttons">
+      <button id="clear-btn" onclick="clearCanvas()"><img src="assets/icons/eraser.svg" alt="Eraser" class="btn-icon" />Erase</button>
+      <button id="mode-btn" onclick="switchDrawingMode()"><img src="assets/icons/mouse.svg" class="btn-icon" /></button>
+      <button id="snapshot-btn" onclick="toggleFrameOptions()"><img src="assets/icons/camera.svg" alt="Camera" class="btn-icon" />Snapshot</button>
     </div>
   </div>
   <!-- Snapshot Frames -->
   <div id="frame-options">
-    <button id="round-frame-btn" onclick="selectFrame('round')">
-      <img src="assets/icons/frame_round.svg" alt="Round Frame">
-      <span>Round</span>
-    </button>
-    <button id="rect-frame-btn" onclick="selectFrame('rect')">
-      <img src="assets/icons/frame_rect.svg" alt="Rect Frame">
-      <span>Wide</span>
-    </button>
+    <button id="round-frame-btn" onclick="selectFrame('round')"><img src="assets/icons/frame_round.svg" alt="Round Frame"><span>Round</span></button>
+    <button id="rect-frame-btn" onclick="selectFrame('rect')"><img src="assets/icons/frame_rect.svg" alt="Rect Frame"><span>Wide</span>
+</button>
   </div>
   <!-- Frame preview overlay -->
   <div id="frame-overlay" aria-hidden="true"><img id="frame-overlay-img" alt="Frame preview"/></div>
