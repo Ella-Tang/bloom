@@ -22,7 +22,7 @@ let bgm, canvasBg, currBgColor, paper;
 let video, handPose, hands = []; // for hand detection
 let flowers = [], selectedFlower = null;
 let minDistanceBetween = Math.min(window.innerWidth, window.innerHeight) / 12; // min dist between each flower
-let timeThreshold = 1000;  // 1 sec (duration for hand to stay to control ui)
+let timeThreshold = 1800;  // 1.8 sec (duration for hand to stay to control ui)
 let handTimer = null, heldElement = null;
 let textureLayer;
 let frameRound, frameRect, frame = null, logoImg;
